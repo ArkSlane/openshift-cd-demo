@@ -19,19 +19,18 @@ This repository includes the infrastructure and pipeline definition for continuo
 On every pipeline execution, the code goes through the following steps:
 
 1. Code is cloned from Gogs, built, tested and analyzed for bugs and bad patterns
-2. The WAR artifact is pushed to Nexus Repository manager
-3. A container image (_tasks:latest_) is built based on the _Tasks_ application WAR artifact deployed on WildFly
-4. If Quay.io is enabled, the Tasks app container image is pushed to the quay.io image registry and a security scan is scheduled
-4. The _Tasks_ container image is deployed in a fresh new container in DEV project (pulled form Quay.io, if enabled)
+2. The builded artifact is pushed to Nexus Repository manager
+3. A container image (_tasks:latest_) is built based on the _Tasks_ application artifact and deployed 
+4. The _Tasks_ container image is deployed in a fresh new container in DEV project
 5. If tests successful, the pipeline is paused for the release manager to approve the release to STAGE
-6. If approved, the DEV image is tagged in the STAGE project. If Quay.io is enabled, the image is tagged in the Quay.io image repository using [Skopeo](https://github.com/containers/skopeo)
-6. The staged image is deployed in a fresh new container in the STAGE project (pulled form Quay.io, if enabled)
+6. If approved, the DEV image is tagged in the STAGE project.
+6. The staged image is deployed in a fresh new container in the STAGE project
 
 The following diagram shows the steps included in the deployment pipeline:
 
 ![](images/pipeline.svg)
 
-The application used in this pipeline is a JAX-RS application which is available on GitHub and is imported into Gogs during the setup process:
+The application used in this pipeline is a JAX-RS application which is available on GitHub
 [https://github.com/OpenShiftDemos/openshift-tasks](https://github.com/OpenShiftDemos/openshift-tasks/tree/eap-7)
 
 ## Prerequisites
@@ -50,15 +49,7 @@ You can se the `scripts/provision.sh` script provided to deploy the entire demo:
   ./provision.sh deploy 
   ./provision.sh delete 
   ```
-If you want to use Quay.io as an external registry with this demo, Go to quay.io and register for free. Then deploy the demo providing your 
-quay.io credentials:
-
-  ```
-  ./provision.sh deploy --enable-quay --quay-username quay_username --quay-password quay_password
-  ```
-In that case, the pipeline would create an image repository called `tasks-app` (default name but configurable) 
-on your Quay.io account and use that instead of the integrated OpenShift 
-registry, for pushing the built images and also pulling images for deployment. 
+  
   
 ## Manual Deploy on OpenShift
 
@@ -108,11 +99,11 @@ This demo by default uses the WildFly community image. You can use the JBoss EAP
 
 * Take note of these credentials and then follow the demo guide below:
 
-  * Gogs: `gogs/gogs`
+  * Git: `git/git`
   * Nexus: `admin/admin123`
   * SonarQube: `admin/admin`
 
-* A Jenkins pipeline is pre-configured which clones Tasks application source code from Gogs (running on OpenShift), builds, deploys and promotes the result through the deployment pipeline. In the CI/CD project, click on _Builds_ and then _Pipelines_ to see the list of defined pipelines.
+* A Jenkins pipeline is pre-configured which clones Tasks application source code from GitHub, builds, deploys and promotes the result through the deployment pipeline. In the CI/CD project, click on _Builds_ and then _Pipelines_ to see the list of defined pipelines.
 
     Click on _tasks-pipeline_ and _Configuration_ and explore the pipeline definition.
 
@@ -122,7 +113,6 @@ This demo by default uses the WildFly community image. You can use the JBoss EAP
 
 * During pipeline execution, verify a new Jenkins slave pod is created within _CI/CD_ project to execute the pipeline.
 
-* If you have enabled Quay, after image build completes go to quay.io and show that a image repository is created and contains the Tasks app image
 
 ![](images/quay-pushed.png?raw=true)
 
